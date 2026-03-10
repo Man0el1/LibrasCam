@@ -1,0 +1,10 @@
+* {
+  margin: 0;
+}
+
+body {
+  overscroll-behavior: none;
+  font-family: 'Roboto', sans-serif;
+  background-color: #ffffff;
+  color: #505050;
+}
