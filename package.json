@@ -16,9 +16,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "cd backend && npm start",
-    "client": "cd frontend && npm start"
+    "start": "cd frontend && npm start"
   },
   "eslintConfig": {
     "extends": [
@@ -53,7 +51,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/Man0el1/tradutor-libras-site/issues"
   },
