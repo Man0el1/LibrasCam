@@ -12,6 +12,8 @@ export default function Main() {
 
   const [isVisibleButton, setIsVisibleButton] = useState(true);
   const [translatedLetters, setTranslatedLetters] = useState("");
+  const [letterDiv, setLetterDiv] = useState("");
+  const [confidenceDiv, setConfidenceDiv] = useState("");
 
 
   const videoLocRef = useRef(null);
@@ -82,6 +84,8 @@ useEffect(() => {
       if (!response.ok) return;
 
       const result = await response.json();
+      setConfidenceDiv(result.confidence);
+      setLetterDiv(result.letter);
 
       if (result.confidence < 0.3) return;
 
@@ -170,6 +174,8 @@ useEffect(() => {
       </div>
 
       <div className="translator">
+        <div className="letter-predicted">{letterDiv}</div>
+        <div className="confidence-letter">{Math.round(confidenceDiv * 100)}%</div>
         <div className="screen-translator">
           {isVisibleButton &&
             <button className="button-video" onClick={() => startVideo()}>Começar tradução</button>
@@ -177,7 +183,7 @@ useEffect(() => {
           {!isVisibleButton &&
             <button className="button-pause-video" onClick={() => stopVideo()}><FaPause /></button>
           }
-          <video ref={videoLocRef} autoPlay playsInline style={{ width:"58vw", maxWidth: "640px", transform: "scaleX(-1)" }}></video>
+          <video ref={videoLocRef} autoPlay playsInline className="video-location"></video>
         </div>
         <div className="text-options">
           <div className="translated-letters">

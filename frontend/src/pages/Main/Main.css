@@ -32,6 +32,12 @@
   flex-wrap: wrap;
 }
 
+.video-location {
+  width: 58vw;
+  max-width: 640px;
+  transform: scaleX(-1);
+}
+
 .screen-translator {
   position: relative;
   background: #383838;
