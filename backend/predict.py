@@ -8,7 +8,7 @@ app = FastAPI()
 
 origins = [
     "http://localhost:3000",
-    "https://tradutor-libras-site.vercel.app"
+    "https://tradutor-libras.vercel.app"
 ]
 
 app.add_middleware(
