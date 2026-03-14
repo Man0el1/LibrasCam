@@ -9,24 +9,29 @@ button {
 
 .header {
   position: sticky;
+  z-index: 5;
   top: 0;
   right: 0;
   left: 0;
 }
 .navbar {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   gap: 20px;
-  padding-right: 20px;
+  padding-left: 100px;
+  padding-right: 100px;
   text-decoration: none;
-  background-color: rgb(236, 218, 178);
+  background-color: #ffffff7a;
   height: 80px;
 }
 
 .nav-item {
   text-decoration: none;
+  background-color: #eff4ff;
+  border-radius: 5px;
   font-size: 1.2rem;
+
   padding: 10px;
   list-style-type: none;
 }

@@ -2,114 +2,161 @@ import React, { useEffect, useState, useRef } from "react";
 import { Hands } from '@mediapipe/hands';
 import { Camera } from '@mediapipe/camera_utils';
 
+import { LuSpace } from "react-icons/lu";
+import { FaPause } from "react-icons/fa";
+import { FaBackspace } from "react-icons/fa";
+
 import './Main.css'
 
 export default function Main() {
 
   const [isVisibleButton, setIsVisibleButton] = useState(true);
-  const [IsTranslating, setIsTranslating] = useState(false);
   const [translatedLetters, setTranslatedLetters] = useState("");
 
 
-  const videoRef = useRef(null);
+  const videoLocRef = useRef(null);
   const cameraRef = useRef(null);
   const handsRef = useRef(null);
   const lastRequest = useRef(0);
   const numSequence = useRef(0);
-  const currentLetter = useRef(null)
+  const currentLetter = useRef(null);
+  const isTranslatingRef = useRef(false);
+  const isProcessing = useRef(false);
 
-  useEffect(() => {
-    handsRef.current = new Hands({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-      }
+useEffect(() => {
+  const hands = new Hands({
+    locateFile: (file) =>
+      `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+  });
+
+  hands.setOptions({
+    maxNumHands: 1,
+    modelComplexity: 1,
+    minDetectionConfidence: 0.7,
+    minTrackingConfidence: 0.7
+  });
+
+  hands.onResults(async (results) => {
+
+    if (!isTranslatingRef.current) return;
+
+    const now = Date.now();
+    if (now - lastRequest.current < 300) return;
+    lastRequest.current = now;
+
+    if (!results.multiHandLandmarks?.length) return;
+
+    const hand = results.multiHandLandmarks[0];
+
+    let x = [];
+    let y = [];
+    let data = [];
+
+    hand.forEach(point => {
+      x.push(point.x);
+      y.push(point.y);
     });
-    handsRef.current.setOptions({
-      maxNumHands: 1,
-      modelComplexity: 1,
-      minDetectionConfidence: 0.7,
-      minTrackingConfidence: 0.7
+
+    const minX = Math.min(...x);
+    const maxX = Math.max(...x);
+    const minY = Math.min(...y);
+    const maxY = Math.max(...y);
+
+    const width = maxX - minX || 1;
+    const height = maxY - minY || 1;
+
+    hand.forEach(point => {
+      data.push((point.x - minX) / width);
+      data.push((point.y - minY) / height);
     });
 
-    handsRef.current.onResults(async (results) => {
-      if (!IsTranslating) return;
+    if (data.length !== 42) return;
 
-      const now = Date.now();
-      if (now - lastRequest.current < 300) return;
-      lastRequest.current = now;
-
-      if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) return;
-
-      const hand = results.multiHandLandmarks[0];
-      let x = [];
-      let y = [];
-      let data = [];
-
-      hand.forEach(point => {
-        x.push(point.x);
-        y.push(point.y);
-      })
-
-      const minX = Math.min(...x);
-      const maxX = Math.max(...x);
-      const minY = Math.min(...y);
-      const maxY = Math.max(...y);
-
-      hand.forEach(point => {
-        data.push((point.x - minX) / (maxX - minX));
-        data.push((point.y - minY) / (maxY - minY));
+    try {
+      const response = await fetch("http://localhost:8080/predict", {
+        method: "POST",
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ data })
       });
-      if (data.length !== 42) return;
 
-      try {
-        let response = await fetch("http://localhost:8080/predict", {
-          method: "POST",
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({data: data})
-        })
-        if (!response.ok) return;
+      if (!response.ok) return;
 
-        let result = await response.json();
-        if (result.confidence < 0.3) return;
+      const result = await response.json();
 
-        if (currentLetter.current === null) currentLetter.current = result.letter;
-        if (result.letter === currentLetter.current) {
-          numSequence.current += 1;
-        } else {
-          currentLetter.current = result.letter;
-          numSequence.current = 1;
-        }
-        if (numSequence.current >= 5) {
-          setTranslatedLetters(prev => prev + result.letter);
-          numSequence.current = 0;
-          currentLetter.current = null;
-        }
-      } catch (e) {
-        alert("erro:" + e);
+      if (result.confidence < 0.3) return;
+
+      if (currentLetter.current === null)
+        currentLetter.current = result.letter;
+
+      if (result.letter === currentLetter.current) {
+        numSequence.current++;
+      } else {
+        currentLetter.current = result.letter;
+        numSequence.current = 1;
       }
-    });
 
-  }, [IsTranslating]);
+      if (numSequence.current >= 5) {
+        setTranslatedLetters(prev => prev + result.letter);
+        numSequence.current = 0;
+        currentLetter.current = null;
+      }
+
+    } catch (e) {
+      console.error(e);
+    }
+  });
+  handsRef.current = hands;
+}, []);
 
   // python -m uvicorn predict:app --reload --port 8080
-  // lembrar colocar isTransalitng
   const startVideo = async () => {
-    try{
-      setIsVisibleButton(false);
-      setIsTranslating(true);
+    try {
 
-      cameraRef.current = new Camera(videoRef.current, {
+      setIsVisibleButton(false);
+      isTranslatingRef.current = true;
+
+      cameraRef.current = new Camera(videoLocRef.current, {
         onFrame: async () => {
-          if (videoRef.current && videoRef.current.readyState >= 2) {
-            await handsRef.current.send({ image: videoRef.current });
+
+          if (!isTranslatingRef.current) return;
+          if (isProcessing.current) return;
+
+          if (
+            videoLocRef.current &&
+            videoLocRef.current.readyState >= 2 &&
+            handsRef.current
+          ) {
+
+            isProcessing.current = true;
+
+            try {
+              await handsRef.current.send({ image: videoLocRef.current });
+            } catch (e) {
+              console.error(e);
+            }
+
+            isProcessing.current = false;
           }
+
         },
         width: 640,
         height: 480
       });
+
       cameraRef.current.start();
+
     } catch (e) {
-      console.log("erro: " + e)
+      console.log("erro: " + e);
+    }
+  };
+
+  const stopVideo = async () => {
+    setIsVisibleButton(true);
+    isTranslatingRef.current = false;
+
+    if (cameraRef.current) {
+      cameraRef.current.stop();
+      cameraRef.current = null;
     }
   }
 
@@ -127,21 +174,35 @@ export default function Main() {
           {isVisibleButton &&
             <button className="button-video" onClick={() => startVideo()}>Começar tradução</button>
           }
-          <video ref={videoRef} autoPlay playsInline style={{ width: "640px", transform: "scaleX(-1)" }}></video>
+          {!isVisibleButton &&
+            <button className="button-pause-video" onClick={() => stopVideo()}><FaPause /></button>
+          }
+          <video ref={videoLocRef} autoPlay playsInline style={{ width:"58vw", maxWidth: "640px", transform: "scaleX(-1)" }}></video>
         </div>
         <div className="text-options">
           <div className="translated-letters">
             {translatedLetters}
           </div>
-          {!isVisibleButton &&
-            <div className="button-text-options">
-              <button className="button-space" onClick={() => setTranslatedLetters(translatedLetters + " ")}>_</button>
-              <button className="button-remove" onClick={() => setTranslatedLetters(translatedLetters.slice(0, -1))}>-</button>
-              <button className="button-delete" onClick={() => setTranslatedLetters("")}>X</button>
-            </div>
-          }
+          <div className="button-text-options">
+            <button className="button-space" onClick={() => setTranslatedLetters(translatedLetters + " ")}><LuSpace /></button>
+            <button className="button-remove" onClick={() => setTranslatedLetters(translatedLetters.slice(0, -1))}><FaBackspace /></button>
+            <button className="button-delete" onClick={() => setTranslatedLetters("")}>X</button>
+          </div>
         </div>
       </div>
+      <div className="how-to-use">
+        <h2>Como usar</h2>
+        <ol>
+          <li>Clique em "Começar tradução".</li>
+          <li>Mostre o sinal de Libras para a câmera.</li>
+          <li>As letras reconhecidas aparecerão ao lado.</li>
+          <li>Use os botões para editar o texto.</li>
+        </ol>
+      </div>
+      <footer>
+        <p>Projeto de tradução de Libras utilizando Machine Learning</p>
+        <p>Desenvolvido por <a href="https://portfolio-manoelg.vercel.app/">Manoel Geremias</a></p>
+      </footer>
     </div>
   )
 }
