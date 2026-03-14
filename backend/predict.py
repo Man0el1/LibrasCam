@@ -6,14 +6,18 @@ import numpy as np
 
 app = FastAPI()
 
-app.add_middleware(
-  CORSMiddleware,
-  allow_origins=["*"],
-  allow_credentials=True,
-  allow_methods=["*"],
-  allow_headers=["*"],
-)
+origins = [
+    "http://localhost:3000",
+    "https://tradutor-libras-site.vercel.app"
+]
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 class HandData(BaseModel):
   data: list
 

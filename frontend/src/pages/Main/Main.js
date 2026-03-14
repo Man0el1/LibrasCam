@@ -75,7 +75,7 @@ useEffect(() => {
     if (data.length !== 42) return;
 
     try {
-      const response = await fetch("http://localhost:8080/predict", {
+      const response = await fetch("https://tradutor-libras-backend.up.railway.app/predict", {
         method: "POST",
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ data })
