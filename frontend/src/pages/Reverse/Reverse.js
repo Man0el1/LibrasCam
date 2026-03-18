@@ -10,7 +10,7 @@ export default function Reverse() {
   const posicoes = {
     a: "0px 0px",
     b: "-100px 0px"
-    //...
+    //..
   };
 
   const handleSubmit = async (e) => {
