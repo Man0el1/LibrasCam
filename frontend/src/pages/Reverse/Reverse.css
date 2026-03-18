@@ -1,0 +1,6 @@
+.letter {
+  width: 100px;
+  height: 100px;
+  /*background-image: url(/frontend/public/images/);*/
+  background-repeat: no-repeat;
+}

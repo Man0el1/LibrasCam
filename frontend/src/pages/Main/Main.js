@@ -25,94 +25,93 @@ export default function Main() {
   const isTranslatingRef = useRef(false);
   const isProcessing = useRef(false);
 
-useEffect(() => {
-  const hands = new Hands({
-    locateFile: (file) =>
-      `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-  });
-
-  hands.setOptions({
-    maxNumHands: 1,
-    modelComplexity: 1,
-    minDetectionConfidence: 0.7,
-    minTrackingConfidence: 0.7
-  });
-
-  hands.onResults(async (results) => {
-
-    if (!isTranslatingRef.current) return;
-
-    const now = Date.now();
-    if (now - lastRequest.current < 300) return;
-    lastRequest.current = now;
-
-    if (!results.multiHandLandmarks?.length) return;
-
-    const hand = results.multiHandLandmarks[0];
-
-    let x = [];
-    let y = [];
-    let data = [];
-
-    hand.forEach(point => {
-      x.push(point.x);
-      y.push(point.y);
+  useEffect(() => {
+    const hands = new Hands({
+      locateFile: (file) =>
+        `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
     });
 
-    const minX = Math.min(...x);
-    const maxX = Math.max(...x);
-    const minY = Math.min(...y);
-    const maxY = Math.max(...y);
-
-    const width = maxX - minX || 1;
-    const height = maxY - minY || 1;
-
-    hand.forEach(point => {
-      data.push((point.x - minX) / width);
-      data.push((point.y - minY) / height);
+    hands.setOptions({
+      maxNumHands: 1,
+      modelComplexity: 1,
+      minDetectionConfidence: 0.7,
+      minTrackingConfidence: 0.7
     });
 
-    if (data.length !== 42) return;
+    hands.onResults(async (results) => {
 
-    try {
-      const response = await fetch("https://tradutor-libras-site-production.up.railway.app/predict", {
-        method: "POST",
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ data })
+      if (!isTranslatingRef.current) return;
+
+      const now = Date.now();
+      if (now - lastRequest.current < 300) return;
+      lastRequest.current = now;
+
+      if (!results.multiHandLandmarks?.length) return;
+
+      const hand = results.multiHandLandmarks[0];
+
+      let x = [];
+      let y = [];
+      let data = [];
+
+      hand.forEach(point => {
+        x.push(point.x);
+        y.push(point.y);
       });
 
-      if (!response.ok) return;
+      const minX = Math.min(...x);
+      const maxX = Math.max(...x);
+      const minY = Math.min(...y);
+      const maxY = Math.max(...y);
 
-      const result = await response.json();
-      setConfidenceDiv(result.confidence);
-      setLetterDiv(result.letter);
+      const width = maxX - minX || 1;
+      const height = maxY - minY || 1;
 
-      if (result.confidence < 0.3) return;
+      hand.forEach(point => {
+        data.push((point.x - minX) / width);
+        data.push((point.y - minY) / height);
+      });
 
-      if (currentLetter.current === null)
-        currentLetter.current = result.letter;
+      if (data.length !== 42) return;
 
-      if (result.letter === currentLetter.current) {
-        numSequence.current++;
-      } else {
-        currentLetter.current = result.letter;
-        numSequence.current = 1;
+      try {
+        const response = await fetch("https://tradutor-libras-site-production.up.railway.app/predict", {
+          method: "POST",
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ data })
+        });
+
+        if (!response.ok) return;
+
+        const result = await response.json();
+        setConfidenceDiv(result.confidence);
+        setLetterDiv(result.letter);
+
+        if (result.confidence < 0.3) return;
+
+        if (currentLetter.current === null)
+          currentLetter.current = result.letter;
+
+        if (result.letter === currentLetter.current) {
+          numSequence.current++;
+        } else {
+          currentLetter.current = result.letter;
+          numSequence.current = 1;
+        }
+
+        if (numSequence.current >= 5) {
+          setTranslatedLetters(prev => prev + result.letter);
+          numSequence.current = 0;
+          currentLetter.current = null;
+        }
+
+      } catch (e) {
+        console.error(e);
       }
+    });
+    handsRef.current = hands;
+  }, []);
 
-      if (numSequence.current >= 5) {
-        setTranslatedLetters(prev => prev + result.letter);
-        numSequence.current = 0;
-        currentLetter.current = null;
-      }
-
-    } catch (e) {
-      console.error(e);
-    }
-  });
-  handsRef.current = hands;
-}, []);
-
-  // python -m uvicorn predict:app --reload --port 8080
   const startVideo = async () => {
     try {
 
@@ -167,9 +166,9 @@ useEffect(() => {
   return(
     <div className="homePage">
       <div className="intro-text">
-        <h1 className="title">Tradutor Libras</h1>
+        <h1 className="title">Tradutor Alfabeto Libras</h1>
         <h3 className="subtitle">
-          Um tradutor simples e eficiente para tradução em libras em tempo real
+          Um tradutor simples e eficiente para tradução do alfabeto em libras em tempo real
         </h3>
       </div>
 
@@ -205,10 +204,6 @@ useEffect(() => {
           <li>Use os botões para editar o texto.</li>
         </ol>
       </div>
-      <footer>
-        <p>Projeto de tradução de Libras utilizando Machine Learning</p>
-        <p>Desenvolvido por <a href="https://portfolio-manoelg.vercel.app/">Manoel Geremias</a></p>
-      </footer>
     </div>
   )
 }
