@@ -1,6 +1,94 @@
+.intro-text-reverse {
+  text-align: center;
+  margin-top: 40px;
+  margin-bottom: 10px;
+}
+
+.reverse-translator {
+  display: flex;
+  gap: 40px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.form-translator {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 350px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fafafa;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+  border: 1px solid #ddd;
+}
+
+.form-translator label {
+  font-weight: 500;
+  color: #333;
+}
+
+.form-translator .input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.form-translator .input:focus {
+  border-color: #888;
+  outline: none;
+}
+
+.form-translator .submit {
+  padding: 10px 15px;
+  background-color: #555555;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
 .letter {
-  width: 100px;
-  height: 100px;
-  /*background-image: url(/frontend/public/images/);*/
+  width: 150px;
+  height: 225px;
+  background-image: url("../../../public/images/imagemMaos.png");
   background-repeat: no-repeat;
+  background-size: auto;
+  border-radius: 8px;
+  background-color: #f0f2f5;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+}
+
+.letter-comp {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 15px;
+  justify-content: center;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.letter-comp > div {
+  width: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.reverse-results {
+  width: 90vw;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  display: flex;
+  justify-content: center;
 }

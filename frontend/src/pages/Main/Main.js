@@ -173,8 +173,10 @@ export default function Main() {
       </div>
 
       <div className="translator">
-        <div className="letter-predicted">{letterDiv}</div>
-        <div className="confidence-letter">{Math.round(confidenceDiv * 100)}%</div>
+        <div className="prediction-box">
+          <div className="letter-predicted">{letterDiv}</div>
+          <div className="confidence-letter">{Math.round(confidenceDiv * 100)}%</div>
+        </div>
         <div className="screen-translator">
           {isVisibleButton &&
             <button className="button-video" onClick={() => startVideo()}>Começar tradução</button>

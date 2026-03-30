@@ -8,9 +8,9 @@ import Main from "./pages/Main/Main.js";
 import Reverse from "./pages/Reverse/Reverse.js";
 
 export default function App() {
-  //<Header/>
   return (
     <Router>
+      <Header/>
       <Routes>
         <Route path="/" element={<Main/>}/>
         <Route path="/reverse" element={<Reverse/>}/>

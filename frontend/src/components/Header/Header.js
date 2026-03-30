@@ -29,12 +29,12 @@ export default function Header() {
             <button onClick={() => setOpen(!open)}>Codigo fonte</button>
             {open && (
               <div className="menu">
-                <div>
-                  <a href="https://github.com/Man0el1/LibrasCam">Site</a>
-                </div>
-                <div>
-                  <a href="https://github.com/Man0el1/tradutor-libras">IA</a>
-                </div>
+                <a href="https://github.com/Man0el1/LibrasCam">
+                  <div>• Site</div>
+                </a>
+                <a href="https://github.com/Man0el1/tradutor-libras">
+                  <div>• IA</div>
+                </a>
               </div>
             )}
           </div>

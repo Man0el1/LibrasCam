@@ -7,53 +7,62 @@ export default function Reverse() {
   const [formText, setFormText] = useState("");
   const [textTranslation, setTextTranslation] = useState();
 
-  const posicoes = {
-    a: "0px 0px",
-    b: "-100px 0px"
-    //..
-  };
+  const posicoes = {};
+  const letras = "abcdefghijklmnopqrstuvwxyz-";
+  for (let i = 0; i < letras.length; i++) {
+    const x = (i % 9) * 150;
+    const y = Math.floor(i / 9) * 225;
+    posicoes[letras[i]] = `${-x}px ${-y}px`;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const text = formText.replace(/^[a-zA-Z\s]+$/, '');
 
-      return (
-        text.split("").map((letra, i) => {
-          <div key={i} className="letter" style={{ backgroundPosition: posicoes[letra] }}/>
-        })
-      )
+    try {
+      const text = formText.replace(/[^a-zA-Z\s]/g, '').toLowerCase();
+
+      const resultado = (
+        <div className="letter-comp">
+          {text.split("").map((letra, i) => {
+            if (letra === " ") letra = "-";
+
+            return (
+              <div key={i}>
+                <div
+                  className="letter"
+                  style={{ backgroundPosition: posicoes[letra] }}
+                />
+                <div className="word">
+                  {letra === "-" ? "_" : letra}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+      setTextTranslation(resultado);
 
     } catch (e) {
-      console.log("Erro: " + e)
+      console.log("Erro: " + e);
     }
   };
 
   return(
     <div className="homePage">
-      <div className="intro-text">
+      <div className="intro-text-reverse">
         <h1 className="title">Tradutor Alfabeto Libras</h1>
         <h3 className="subtitle">
           Um tradutor simples e eficiente para tradução do alfabeto em libras
         </h3>
       </div>
 
-      <div className="translator">
+      <div className="reverse-translator">
         <form className='form-translator' onSubmit={handleSubmit}>
           <label htmlFor="text">Insira o texto a ser traduzido</label>
           <input value={formText} onChange={(e) => setFormText(e.target.value)} id='text' name='text' className='input' type='text' />
           <input className='submit' type='submit' value='Traduzir'/>
         </form>
-        <div className="results"> {textTranslation} </div>
-      </div>
-      <div className="how-to-use">
-        <h2>Como usar</h2>
-        <ol>
-          <li>Escreva o que deseja traduzir para libras.</li>
-          <li>Mostre o sinal de Libras para a câmera.</li>
-          <li>As letras reconhecidas aparecerão ao lado.</li>
-          <li>Use os botões para editar o texto.</li>
-        </ol>
+        <div className="reverse-results"> {textTranslation} </div>
       </div>
     </div>
   )

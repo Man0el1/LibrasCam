@@ -40,3 +40,27 @@ button {
   text-decoration: none;
   color: black;
 }
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  min-width: 120px;
+  z-index: 10;
+}
+
+.menu div {
+  padding: 10px;
+}
+
+.menu div:hover {
+  background-color: #f0f0f0;
+}
