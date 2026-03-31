@@ -59,7 +59,7 @@ export default function Reverse() {
       <div className="reverse-translator">
         <form className='form-translator' onSubmit={handleSubmit}>
           <label htmlFor="text">Insira o texto a ser traduzido</label>
-          <input value={formText} onChange={(e) => setFormText(e.target.value)} id='text' name='text' className='input' type='text' />
+          <input value={formText} onChange={(e) => setFormText(e.target.value)} maxLength={500} id='text' name='text' className='input' type='text' />
           <input className='submit' type='submit' value='Traduzir'/>
         </form>
         <div className="reverse-results"> {textTranslation} </div>
