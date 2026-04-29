@@ -179,7 +179,7 @@ export default function Main() {
         </div>
         <div className="screen-translator">
           {isVisibleButton &&
-            <button className="button-video" onClick={() => startVideo()}>Começar tradução</button>
+            <button className="button-video" disabled onClick={() => startVideo()}>Indisponivel no momento, voltará em breve!</button>
           }
           {!isVisibleButton &&
             <button className="button-pause-video" onClick={() => stopVideo()}><FaPause /></button>
